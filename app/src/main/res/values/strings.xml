@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Teste Digio</string>
+    <string name="produtos">Produtos</string>
+    <string name="error">Desculpe, algo deu errado</string>
+</resources>
