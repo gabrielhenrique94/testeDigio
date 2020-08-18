@@ -10,37 +10,41 @@ import digital.gok.testedigio.extensions.paintFirstWord
 import digital.gok.testedigio.model.products.ProductsList
 import digital.gok.testedigio.products.adapters.ProductsAdapter
 import digital.gok.testedigio.products.adapters.SpotlightAdapter
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.item_cash.*
 import kotlinx.android.synthetic.main.products_activity.*
 import org.koin.android.ext.android.inject
 
 class ProductsActivity : AppCompatActivity() {
-    private lateinit var spotilghtAdapter: SpotlightAdapter
+    private lateinit var spotligth: SpotlightAdapter
     private lateinit var productsAdapter: ProductsAdapter
-    val viewModel by inject<ProductsViewModel>()
+    private val viewModel by inject<IProductsViewModel>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.products_activity)
         initAdapters()
-        viewModel.listProducts().subscribe(::onLoadingProducts, this::onError)
-
+        viewModel
+            .listProducts()
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe(::onLoadingProducts, this::onError)
     }
 
     private fun initAdapters() {
         productsAdapter = ProductsAdapter()
         productsRecyclerView.adapter = productsAdapter
-        spotilghtAdapter = SpotlightAdapter()
-        spotlightRecyclerView.adapter = spotilghtAdapter
+        spotligth = SpotlightAdapter()
+        spotlightRecyclerView.adapter = spotligth
     }
 
-    fun onLoadingProducts(productsList: ProductsList) {
+    private fun onLoadingProducts(productsList: ProductsList) {
         productsAdapter.add(productsList.products)
-        spotilghtAdapter.add(productsList.spotlight)
+        spotligth.add(productsList.spotlight)
         Picasso.get().load(productsList.cash.bannerURL).into(cash_image)
         cash_title.text = productsList.cash.title.paintFirstWord(this)
     }
 
-    fun onError(throwable: Throwable) {
+    private fun onError(throwable: Throwable) {
         throwable.printStackTrace()
         Toast.makeText(this, R.string.error, LENGTH_LONG).show()
     }
